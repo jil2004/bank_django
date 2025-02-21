@@ -1,0 +1,70 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+media/
+
+# Environment variables
+.env
+.env.*
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# IDE/Editor specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Static files (if collected)
+staticfiles/
+
+# macOS specific
+.DS_Store
+
+# Database migrations (optional, but recommended for shared projects)
+# migrations/
+
+# Testing
+.coverage
+htmlcov/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# PyEnv
+.python-version
+
+# Celery
+celerybeat-schedule
+
+# Node.js (if you’re using a frontend framework like React)
+node_modules/
+npm-debug.log*
+
+# Coverage reports
+.coverage
+htmlcov/
+
+# PyTest
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Logs
+logs/
+*.log
+
+# Backup files
+*.bak
