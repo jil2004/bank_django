@@ -40,13 +40,14 @@ class Transaction(models.Model):
     
 class Loan(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='loans', default=1)  # Set default to the first account
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
     status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
-    return_date = models.DateField(null=True, blank=True)  # Add return date field
+    return_date = models.DateField(null=True, blank=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    loan_duration = models.IntegerField(help_text="Duration in months", default=12)  # Add loan duration field
+    duration_months = models.IntegerField(help_text="Duration in months (e.g., 12, 18, 24)", default=12)
 
     def __str__(self):
         return f"Loan #{self.id} - {self.user.username}"
@@ -57,14 +58,13 @@ class Loan(models.Model):
             original_loan = Loan.objects.get(pk=self.pk)
             if original_loan.status != 'approved':  # Check if status changed to approved
                 # Update account balance
-                account = Account.objects.get(user=self.user)
-                account.balance += self.amount
-                account.save()
+                self.account.balance += self.amount
+                self.account.save()
 
                 # Calculate total amount (principal + interest)
                 self.total_amount = self.amount + (self.amount * self.interest_rate / 100)
 
-                # Calculate return date
-                self.return_date = self.created_at + timedelta(days=30 * self.loan_duration)
+                # Calculate return date based on duration_months
+                self.return_date = self.created_at + timedelta(days=30 * self.duration_months)
 
         super().save(*args, **kwargs)

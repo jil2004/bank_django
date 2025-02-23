@@ -41,4 +41,4 @@ class TransferForm(forms.ModelForm):
 class LoanApplicationForm(forms.ModelForm):
     class Meta:
         model = Loan
-        fields = ['amount', 'interest_rate']
+        fields = ['account', 'amount', 'interest_rate', 'duration_months']

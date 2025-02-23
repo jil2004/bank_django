@@ -13,8 +13,9 @@
                     <th>Loan ID</th>
                     <th>Amount</th>
                     <th>Interest Rate</th>
+                    <th>Duration (Months)</th>
+                    <th>Return Date</th>
                     <th>Status</th>
-                    <th>Applied On</th>
                 </tr>
             </thead>
             <tbody>
@@ -23,10 +24,9 @@
                         <td>{{ loan.id }}</td>
                         <td>{{ loan.amount }}</td>
                         <td>{{ loan.interest_rate }}%</td>
-                        <td>{{ loan.total_amount }}</td>
-                        <td>{{ loan.status }}</td>
-                        <td>{{ loan.created_at }}</td>
+                        <td>{{ loan.duration_months }}</td>
                         <td>{{ loan.return_date }}</td>
+                        <td>{{ loan.status }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
