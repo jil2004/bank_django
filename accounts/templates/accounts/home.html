@@ -79,33 +79,19 @@
         <h1 class="welcome-message">Welcome, {{ request.user.username }}!</h1>
     </div>
 
-    <!-- Account Dropdown -->
-    <div class="container mt-4">
-        <form method="post" action="{% url 'home' %}">
-            {% csrf_token %}
-            <select class="form-select" name="account" onchange="this.form.submit()">
-                {% for account in accounts %}
-                    <option value="{{ account.id }}" {% if account == selected_account %}selected{% endif %}>
-                        {{ account.account_number }} ({{ account.account_type }})
-                    </option>
-                {% endfor %}
-            </select>
-        </form>
-    </div>
-
-    <!-- Account Details Card -->
-    <div class="container mt-4">
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">Total Balance: <span class="total-balance">{{ selected_account.balance }}</span></h3>
-                <p class="card-text">
-                    <strong>Account Type:</strong> {{ selected_account.account_type }}<br>
-                    <strong>Status:</strong> {{ selected_account.status }}
-                </p>
-                <a href="{% url 'account_details' selected_account.id %}" class="btn btn-info btn-action">View Account Details</a>
-            </div>
+<!-- Account Details Card -->
+{% if not no_accounts %}
+    <div class="card mt-4">
+        <div class="card-body">
+            <h3 class="card-title">Total Balance: <span class="total-balance">{{ selected_account.balance }}</span></h3>
+            <p class="card-text">
+                <strong>Account Type:</strong> {{ selected_account.account_type }}<br>
+                <strong>Status:</strong> {{ selected_account.status }}
+            </p>
+            <a href="{% url 'account_details' selected_account.id %}" class="btn btn-info">View Account Details</a>
         </div>
     </div>
+{% endif %}
 
     <!-- Action Buttons -->
     <div class="container mt-4">

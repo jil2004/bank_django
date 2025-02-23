@@ -1,20 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout, views as auth_views
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from .models import Account, Transaction, Loan
 from .forms import SignUpForm, AccountForm, DepositForm, WithdrawalForm, TransferForm, LoanApplicationForm
 from decimal import Decimal
 
 def signup(request):
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
+        form = UserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home') 
+            user = form.save()  # Save the user to the database
+            login(request, user)  # Log the user in
+            return redirect('home')  # Redirect to home after signup
     else:
-        form = SignUpForm()
+        form = UserCreationForm()
     return render(request, 'accounts/signup.html', {'form': form})
 
 def user_login(request):
@@ -29,10 +29,9 @@ def user_login(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('home')  # Redirect to home after successful login
+                return redirect('home')  # Redirect to home after login
     else:
         form = AuthenticationForm()
-
     return render(request, 'accounts/login.html', {'form': form})
 
 def user_logout(request):
@@ -265,9 +264,19 @@ def home(request):
     transactions = Transaction.objects.filter(account__user=request.user).order_by('-timestamp')[:3]  # Last 3 transactions
     pending_loans = Loan.objects.filter(user=request.user, status='pending')  # Get pending loans
 
+    # Handle case when no accounts exist
+    if not selected_account:
+        return render(request, 'accounts/home.html', {
+            'accounts': accounts,
+            'transactions': transactions,
+            'pending_loans': pending_loans,
+            'no_accounts': True,  # Add a flag to indicate no accounts
+        })
+
     return render(request, 'accounts/home.html', {
         'accounts': accounts,
         'transactions': transactions,
         'selected_account': selected_account,
         'pending_loans': pending_loans,
+        'no_accounts': False,  # Add a flag to indicate accounts exist
     })
