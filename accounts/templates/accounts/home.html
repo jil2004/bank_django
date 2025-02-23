@@ -4,6 +4,9 @@
     <title>Home</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        body {
+            background-color: #f8f9fa;
+        }
         .card {
             margin-bottom: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -12,68 +15,102 @@
         .card:hover {
             transform: scale(1.02);
         }
-        .transaction-table {
-            margin-top: 30px;
+        .transaction-card {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .dropdown-menu {
+            min-width: 200px;
+        }
+        .total-balance {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #28a745;
         }
     </style>
 </head>
 <body>
     <div class="container mt-5">
+        <!-- Logout Button -->
+        <div class="text-end">
+            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+        </div>
+
+        <!-- Welcome Message -->
         <h2>Welcome, {{ request.user.username }}!</h2>
 
-        <!-- Deposit and Withdraw Buttons -->
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <a href="{% url 'deposit' %}" class="btn btn-success btn-lg btn-block">Deposit</a>
-            </div>
-            <div class="col-md-6">
-                <a href="{% url 'withdraw' %}" class="btn btn-warning btn-lg btn-block">Withdraw</a>
+        <!-- Account Dropdown -->
+<form method="post" action="{% url 'home' %}" class="mt-4">
+    {% csrf_token %}
+    <select class="form-select" name="account" onchange="this.form.submit()">
+        {% for account in accounts %}
+            <option value="{{ account.id }}" {% if account == selected_account %}selected{% endif %}>
+                {{ account.account_number }} ({{ account.account_type }})
+            </option>
+        {% endfor %}
+    </select>
+</form>
+
+        <!-- Account Details Card -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">Total Balance: <span class="total-balance">{{ selected_account.balance }}</span></h3>
+                <p class="card-text">
+                    <strong>Account Type:</strong> {{ selected_account.account_type }}<br>
+                    <strong>Status:</strong> {{ selected_account.status }}
+                </p>
+                <a href="{% url 'account_details' selected_account.id %}" class="btn btn-info">View Account Details</a>
             </div>
         </div>
 
-        <!-- Account Cards -->
-        <h3 class="mt-5">Your Accounts</h3>
-        <div class="row">
-            {% for account in accounts %}
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ account.account_number }}</h5>
-                            <p class="card-text">
-                                <strong>Type:</strong> {{ account.account_type }}<br>
-                                <strong>Balance:</strong> {{ account.balance }}<br>
-                                <strong>Status:</strong> {{ account.status }}
-                            </p>
-                        </div>
+       <!-- Deposit, Withdraw, and Loan Buttons -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <a href="{% url 'deposit' %}" class="btn btn-success btn-lg btn-block">Deposit</a>
+    </div>
+    <div class="col-md-4">
+        <a href="{% url 'withdraw' %}" class="btn btn-warning btn-lg btn-block">Withdraw</a>
+    </div>
+    <div class="col-md-4">
+        <a href="{% url 'apply_for_loan' %}" class="btn btn-info btn-lg btn-block">Apply for Loan</a>
+    </div>
+</div>
+
+        <!-- Last 3 Transactions -->
+        <h3 class="mt-5">Last 3 Transactions</h3>
+        {% for transaction in transactions %}
+            <div class="transaction-card">
+                <strong>{{ transaction.transaction_type|title }}</strong><br>
+                <small>{{ transaction.timestamp }}</small><br>
+                Amount: {{ transaction.amount }}<br>
+                Description: {{ transaction.description }}
+            </div>
+        {% endfor %}
+
+        <!-- Pending Loans Section -->
+        <h3 class="mt-5">Pending Loans</h3>
+        {% if pending_loans %}
+            {% for loan in pending_loans %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Loan ID: {{ loan.id }}</h5>
+                        <p class="card-text">
+                            <strong>Amount:</strong> {{ loan.amount }}<br>
+                            <strong>Remaining Amount:</strong> {{ loan.total_amount }}<br>
+                            <strong>Return Date:</strong> {{ loan.return_date }}
+                        </p>
                     </div>
                 </div>
             {% endfor %}
-        </div>
-
-        <!-- Transaction History -->
-        <h3 class="mt-5">Transaction History</h3>
-        <div class="transaction-table">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for transaction in transactions %}
-                        <tr>
-                            <td>{{ transaction.timestamp }}</td>
-                            <td>{{ transaction.transaction_type }}</td>
-                            <td>{{ transaction.amount }}</td>
-                            <td>{{ transaction.description }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {% else %}
+            <div class="alert alert-info">No loans pending.</div>
+        {% endif %}
     </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

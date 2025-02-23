@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, views as auth_views
 from django.contrib.auth.forms import AuthenticationForm
 from .models import Account, Transaction, Loan
 from .forms import SignUpForm, AccountForm, DepositForm, WithdrawalForm, TransferForm, LoanApplicationForm
@@ -18,6 +18,9 @@ def signup(request):
     return render(request, 'accounts/signup.html', {'form': form})
 
 def user_login(request):
+    if request.user.is_authenticated:
+        return redirect('home')  # Redirect to home if already logged in
+
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -26,17 +29,22 @@ def user_login(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('home')  
+                return redirect('home')  # Redirect to home after successful login
     else:
         form = AuthenticationForm()
+
     return render(request, 'accounts/login.html', {'form': form})
 
 def user_logout(request):
     logout(request)
-    return redirect('home')  
+    return redirect('login') 
 
-def home(request):
-    return render(request, 'accounts/home.html')
+def root_redirect(request):
+    # Redirect to the home screen if logged in, otherwise to the login screen
+    if request.user.is_authenticated:
+        return redirect('home')
+    else:
+        return redirect('login')
 
 def create_account(request):
     if request.method == 'POST':
@@ -246,6 +254,20 @@ def account_details(request, account_id):
 
 @login_required
 def home(request):
-    accounts = Account.objects.filter(user=request.user)  
-    transactions = Transaction.objects.filter(account__user=request.user).order_by('-timestamp')  # Get transactions for the user
-    return render(request, 'accounts/home.html', {'accounts': accounts, 'transactions': transactions})
+    accounts = Account.objects.filter(user=request.user)
+    selected_account = accounts.first()  # Default to the first account
+
+    if request.method == 'POST':
+        # Handle account selection from the dropdown
+        account_id = request.POST.get('account')
+        selected_account = get_object_or_404(Account, id=account_id, user=request.user)
+
+    transactions = Transaction.objects.filter(account__user=request.user).order_by('-timestamp')[:3]  # Last 3 transactions
+    pending_loans = Loan.objects.filter(user=request.user, status='pending')  # Get pending loans
+
+    return render(request, 'accounts/home.html', {
+        'accounts': accounts,
+        'transactions': transactions,
+        'selected_account': selected_account,
+        'pending_loans': pending_loans,
+    })

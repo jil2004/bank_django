@@ -3,16 +3,74 @@
 <head>
     <title>Apply for Loan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .loan-container {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            font-weight: 500;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.1rem;
+        }
+        .btn-secondary {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2>Apply for Loan</h2>
+    <div class="loan-container">
+        <h2 class="text-center mb-4">Apply for Loan</h2>
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+            
+            <!-- Loan Amount -->
+            <div class="form-group">
+                <label for="id_amount">Loan Amount</label>
+                <input type="number" class="form-control" id="id_amount" name="amount" required>
+            </div>
+
+            <!-- Interest Rate -->
+            <div class="form-group">
+                <label for="id_interest_rate">Interest Rate (%)</label>
+                <input type="number" class="form-control" id="id_interest_rate" name="interest_rate" step="0.01" required>
+            </div>
+
+            <!-- Duration (Months) -->
+            <div class="form-group">
+                <label for="id_duration_months">Duration (Months)</label>
+                <input type="number" class="form-control" id="id_duration_months" name="duration_months" required>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="id_description">Description</label>
+                <textarea class="form-control" id="id_description" name="description" rows="3"></textarea>
+            </div>
+
+            <!-- Submit and Cancel Buttons -->
             <button type="submit" class="btn btn-primary">Apply</button>
-            <a href="{% url 'view_account' %}" class="btn btn-secondary">Cancel</a>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
