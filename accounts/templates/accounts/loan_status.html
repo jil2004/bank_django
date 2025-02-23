@@ -23,8 +23,10 @@
                         <td>{{ loan.id }}</td>
                         <td>{{ loan.amount }}</td>
                         <td>{{ loan.interest_rate }}%</td>
+                        <td>{{ loan.total_amount }}</td>
                         <td>{{ loan.status }}</td>
                         <td>{{ loan.created_at }}</td>
+                        <td>{{ loan.return_date }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

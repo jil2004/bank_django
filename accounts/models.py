@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from datetime import timedelta
 
 class Account(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -43,7 +44,27 @@ class Loan(models.Model):
     interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
     status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    return_date = models.DateField(null=True, blank=True)  # Add return date field
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    loan_duration = models.IntegerField(help_text="Duration in months", default=12)  # Add loan duration field
 
     def __str__(self):
         return f"Loan #{self.id} - {self.user.username}"
-    
+
+    def save(self, *args, **kwargs):
+        # Update balance, calculate total amount, and set return date when loan is approved
+        if self.status == 'approved' and self.pk is not None:
+            original_loan = Loan.objects.get(pk=self.pk)
+            if original_loan.status != 'approved':  # Check if status changed to approved
+                # Update account balance
+                account = Account.objects.get(user=self.user)
+                account.balance += self.amount
+                account.save()
+
+                # Calculate total amount (principal + interest)
+                self.total_amount = self.amount + (self.amount * self.interest_rate / 100)
+
+                # Calculate return date
+                self.return_date = self.created_at + timedelta(days=30 * self.loan_duration)
+
+        super().save(*args, **kwargs)
