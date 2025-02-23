@@ -15,7 +15,9 @@
                     <th>Interest Rate</th>
                     <th>Duration (Months)</th>
                     <th>Return Date</th>
+                    <th>Total Amount Due</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,7 +28,13 @@
                         <td>{{ loan.interest_rate }}%</td>
                         <td>{{ loan.duration_months }}</td>
                         <td>{{ loan.return_date }}</td>
+                        <td>{{ loan.total_amount }}</td>
                         <td>{{ loan.status }}</td>
+                        <td>
+                            {% if loan.status == 'approved' %}
+                                <a href="{% url 'repay_loan' loan.id %}" class="btn btn-primary">Repay</a>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

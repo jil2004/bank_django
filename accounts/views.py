@@ -1,9 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .models import Account, Transaction, Loan
 from .forms import SignUpForm, AccountForm, DepositForm, WithdrawalForm, TransferForm, LoanApplicationForm
+from decimal import Decimal
 
 def signup(request):
     if request.method == 'POST':
@@ -133,3 +134,46 @@ def apply_for_loan(request):
 def loan_status(request):
     loans = Loan.objects.filter(user=request.user)
     return render(request, 'accounts/loan_status.html', {'loans': loans})
+
+#repay loan
+@login_required
+def repay_loan(request, loan_id):
+    loan = get_object_or_404(Loan, id=loan_id, user=request.user)
+
+    if request.method == 'POST':
+        try:
+            amount = Decimal(request.POST.get('amount'))
+        except (TypeError, ValueError):
+            return render(request, 'accounts/repay_loan.html', {'loan': loan, 'error': 'Invalid amount.'})
+
+        if amount <= Decimal('0.00'):
+            return render(request, 'accounts/repay_loan.html', {'loan': loan, 'error': 'Amount must be greater than 0.'})
+
+        if amount > loan.total_amount:
+            return render(request, 'accounts/repay_loan.html', {'loan': loan, 'error': 'Amount cannot exceed the total loan amount.'})
+
+        # Deduct the repaid amount from the loan total amount
+        loan.total_amount -= amount
+        loan.save()
+
+        # Deduct the repaid amount from the user's account balance
+        account = loan.account
+        account.balance -= amount
+        account.save()
+
+        # Record the repayment transaction
+        Transaction.objects.create(
+            account=account,
+            transaction_type='repayment',
+            amount=amount,
+            description=f"Repayment for Loan #{loan.id}"
+        )
+
+        # Mark the loan as repaid if the total amount is fully repaid
+        if loan.total_amount <= Decimal('0.00'):
+            loan.status = 'repaid'
+            loan.save()
+
+        return redirect('loan_status')
+
+    return render(request, 'accounts/repay_loan.html', {'loan': loan})
