@@ -6,14 +6,42 @@
     <style>
         body {
             background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar {
+            background-color: #007bff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .welcome-message {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-top: 2rem;
+            text-align: center;
         }
         .card {
-            margin-bottom: 20px;
+            border: none;
+            border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s;
         }
         .card:hover {
-            transform: scale(1.02);
+            transform: translateY(-5px);
+        }
+        .total-balance {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .btn-action {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
         }
         .transaction-card {
             background-color: #fff;
@@ -22,65 +50,81 @@
             padding: 15px;
             margin-bottom: 10px;
         }
-        .dropdown-menu {
-            min-width: 200px;
-        }
-        .total-balance {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #28a745;
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
         }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <!-- Logout Button -->
-        <div class="text-end">
-            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">MyBank</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                </ul>
+            </div>
         </div>
+    </nav>
 
-        <!-- Welcome Message -->
-        <h2>Welcome, {{ request.user.username }}!</h2>
+    <!-- Welcome Message -->
+    <div class="container">
+        <h1 class="welcome-message">Welcome, {{ request.user.username }}!</h1>
+    </div>
 
-        <!-- Account Dropdown -->
-<form method="post" action="{% url 'home' %}" class="mt-4">
-    {% csrf_token %}
-    <select class="form-select" name="account" onchange="this.form.submit()">
-        {% for account in accounts %}
-            <option value="{{ account.id }}" {% if account == selected_account %}selected{% endif %}>
-                {{ account.account_number }} ({{ account.account_type }})
-            </option>
-        {% endfor %}
-    </select>
-</form>
+    <!-- Account Dropdown -->
+    <div class="container mt-4">
+        <form method="post" action="{% url 'home' %}">
+            {% csrf_token %}
+            <select class="form-select" name="account" onchange="this.form.submit()">
+                {% for account in accounts %}
+                    <option value="{{ account.id }}" {% if account == selected_account %}selected{% endif %}>
+                        {{ account.account_number }} ({{ account.account_type }})
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
 
-        <!-- Account Details Card -->
-        <div class="card mt-4">
+    <!-- Account Details Card -->
+    <div class="container mt-4">
+        <div class="card">
             <div class="card-body">
                 <h3 class="card-title">Total Balance: <span class="total-balance">{{ selected_account.balance }}</span></h3>
                 <p class="card-text">
                     <strong>Account Type:</strong> {{ selected_account.account_type }}<br>
                     <strong>Status:</strong> {{ selected_account.status }}
                 </p>
-                <a href="{% url 'account_details' selected_account.id %}" class="btn btn-info">View Account Details</a>
+                <a href="{% url 'account_details' selected_account.id %}" class="btn btn-info btn-action">View Account Details</a>
             </div>
         </div>
+    </div>
 
-       <!-- Deposit, Withdraw, and Loan Buttons -->
-<div class="row mt-4">
-    <div class="col-md-4">
-        <a href="{% url 'deposit' %}" class="btn btn-success btn-lg btn-block">Deposit</a>
+    <!-- Action Buttons -->
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-4">
+                <a href="{% url 'deposit' %}" class="btn btn-success btn-action">Deposit</a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'withdraw' %}" class="btn btn-warning btn-action">Withdraw</a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'apply_for_loan' %}" class="btn btn-info btn-action">Apply for Loan</a>
+            </div>
+        </div>
     </div>
-    <div class="col-md-4">
-        <a href="{% url 'withdraw' %}" class="btn btn-warning btn-lg btn-block">Withdraw</a>
-    </div>
-    <div class="col-md-4">
-        <a href="{% url 'apply_for_loan' %}" class="btn btn-info btn-lg btn-block">Apply for Loan</a>
-    </div>
-</div>
 
-        <!-- Last 3 Transactions -->
-        <h3 class="mt-5">Last 3 Transactions</h3>
+    <!-- Last 3 Transactions -->
+    <div class="container mt-5">
+        <h3>Recent Transactions</h3>
         {% for transaction in transactions %}
             <div class="transaction-card">
                 <strong>{{ transaction.transaction_type|title }}</strong><br>
@@ -89,12 +133,14 @@
                 Description: {{ transaction.description }}
             </div>
         {% endfor %}
+    </div>
 
-        <!-- Pending Loans Section -->
-        <h3 class="mt-5">Pending Loans</h3>
+    <!-- Pending Loans Section -->
+    <div class="container mt-5">
+        <h3>Pending Loans</h3>
         {% if pending_loans %}
             {% for loan in pending_loans %}
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">Loan ID: {{ loan.id }}</h5>
                         <p class="card-text">
@@ -108,6 +154,11 @@
         {% else %}
             <div class="alert alert-info">No loans pending.</div>
         {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2025 MyBank. All rights reserved.</p>
     </div>
 
     <!-- Bootstrap JS -->
