@@ -26,6 +26,8 @@
                         <td>{{ account.status }}</td>
                         <td>
                             <a href="{% url 'account_details' account.id %}" class="btn btn-info">Details</a>
+                            <a href="{% url 'deposit' account.id %}" class="btn btn-info">Deposit</a>
+                            <a href="{% url 'withdraw' account.id %}" class="btn btn-info">Withdraw</a>
                         </td>
                     </tr>
                 {% endfor %}

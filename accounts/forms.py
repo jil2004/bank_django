@@ -22,13 +22,14 @@ class AccountForm(forms.ModelForm):
 class DepositForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['amount']
+        fields = ['amount', 'description']
+
 
 # Withdrawal Form
 class WithdrawalForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['amount']
+        fields = ['amount', 'description']
 
 # Transfer Form
 class TransferForm(forms.ModelForm):

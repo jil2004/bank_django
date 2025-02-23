@@ -55,36 +55,62 @@ def view_account(request):
     accounts = Account.objects.filter(user=request.user)
     return render(request, 'accounts/view_account.html', {'accounts': accounts})
 
-def deposit(request, account_id):
-    account = Account.objects.get(id=account_id)
+@login_required
+def deposit(request):
     if request.method == 'POST':
         form = DepositForm(request.POST)
         if form.is_valid():
+            account_id = request.POST.get('account')
+            account = Account.objects.get(id=account_id, user=request.user)  # Ensure the account belongs to the logged-in user
             amount = form.cleaned_data['amount']
+            description = form.cleaned_data['description']
+
             account.balance += amount
             account.save()
-            Transaction.objects.create(account=account, transaction_type='deposit', amount=amount)
-            return redirect('view_account')
+
+            Transaction.objects.create(
+                account=account,
+                transaction_type='deposit',
+                amount=amount,
+                description=description
+            )
+
+            return redirect('home')
     else:
         form = DepositForm()
-    return render(request, 'accounts/deposit.html', {'form': form, 'account': account})
 
-def withdraw(request, account_id):
-    account = Account.objects.get(id=account_id)
+    accounts = Account.objects.filter(user=request.user)  # Show only the logged-in user's accounts
+    return render(request, 'accounts/deposit.html', {'form': form, 'accounts': accounts})
+
+@login_required
+def withdraw(request):
     if request.method == 'POST':
         form = WithdrawalForm(request.POST)
         if form.is_valid():
+            account_id = request.POST.get('account')
+            account = Account.objects.get(id=account_id, user=request.user)  # Ensure the account belongs to the logged-in user
             amount = form.cleaned_data['amount']
+            description = form.cleaned_data['description']
+
             if account.balance >= amount:
                 account.balance -= amount
                 account.save()
-                Transaction.objects.create(account=account, transaction_type='withdrawal', amount=amount)
-                return redirect('view_account')
+
+                Transaction.objects.create(
+                    account=account,
+                    transaction_type='withdrawal',
+                    amount=amount,
+                    description=description
+                )
+
+                return redirect('home')
             else:
                 form.add_error('amount', 'Insufficient balance')
     else:
         form = WithdrawalForm()
-    return render(request, 'accounts/withdraw.html', {'form': form, 'account': account})
+
+    accounts = Account.objects.filter(user=request.user)  # Show only the logged-in user's accounts
+    return render(request, 'accounts/withdraw.html', {'form': form, 'accounts': accounts})
 
 def transfer(request, account_id):
     account = Account.objects.get(id=account_id)
@@ -217,3 +243,9 @@ def account_details(request, account_id):
     }
 
     return render(request, 'accounts/account_details.html', context)
+
+@login_required
+def home(request):
+    accounts = Account.objects.filter(user=request.user)  
+    transactions = Transaction.objects.filter(account__user=request.user).order_by('-timestamp')  # Get transactions for the user
+    return render(request, 'accounts/home.html', {'accounts': accounts, 'transactions': transactions})
