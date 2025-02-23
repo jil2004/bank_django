@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
+from decimal import Decimal
 
 class Account(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -19,11 +20,22 @@ class Account(models.Model):
                 days_since_last_calculation = (now - self.last_interest_calculation).days
             else:
                 days_since_last_calculation = (now - self.created_at).days
-            interest_rate = 0.05  # 5% annual interest rate
-            daily_interest = (self.balance * interest_rate) / 365
-            self.balance += daily_interest * days_since_last_calculation
+            interest_rate = Decimal('0.05')  # 5% annual interest rate
+            daily_interest = (self.balance * interest_rate) / Decimal('365')
+            total_interest = daily*interest * Decimal(str(days_since_last_calculation))
+            
+            #update balance and last interest calculation rate
+            self.balance += total_interest
             self.last_interest_calculation = now
             self.save()
+            
+            #record interest transactions
+            Transaction.objects.create(
+                account=self,
+                transaction_type='interest',
+                amount=total_interest,
+                description=f"Interest added for {days_since_last_calculation} days"
+            )
     
     def __str__(self):
         return f"{self.account_number} - {self.user.username}"
