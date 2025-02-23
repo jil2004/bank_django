@@ -82,62 +82,66 @@
         <h1 class="welcome-message">Welcome, {{ request.user.username }}!</h1>
     </div>
 
-    <!-- Account Dropdown -->
+    <!-- Account Dropdown and Details -->
     <div class="container mt-4">
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                Select Account
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="accountDropdown">
-                {% for account in accounts %}
-                    <li>
-                        <a class="dropdown-item" href="#" onclick="selectAccount('{{ account.id }}')">
-                            {{ account.account_number }} ({{ account.account_type }})
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+        {% if accounts %}
+            <!-- Account Dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Select Account
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="accountDropdown">
+                    {% for account in accounts %}
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="selectAccount('{{ account.id }}')">
+                                {{ account.account_number }} ({{ account.account_type }})
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
 
-        <!-- Hidden Form for Account Selection -->
-        <form id="accountForm" method="post" action="{% url 'home' %}" style="display: none;">
-            {% csrf_token %}
-            <input type="hidden" name="account" id="selectedAccount">
-        </form>
+            <!-- Hidden Form for Account Selection -->
+            <form id="accountForm" method="post" action="{% url 'home' %}" style="display: none;">
+                {% csrf_token %}
+                <input type="hidden" name="account" id="selectedAccount">
+            </form>
+
+            <!-- Account Details Card -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h3 class="card-title">Total Balance: <span class="total-balance">{{ selected_account.balance }}</span></h3>
+                    <p class="card-text">
+                        <strong>Account No : </strong> {{ selected_account.account_number }} <br>
+                        <strong>Account Type:</strong> {{ selected_account.account_type }}<br>
+                        <strong>Status:</strong> {{ selected_account.status }}
+                    </p>
+                    <a href="{% url 'account_details' selected_account.id %}" class="btn btn-info">View Account Details</a>
+                </div>
+            </div>
+        {% else %}
+            <!-- No Accounts Message -->
+            <div class="alert alert-info">No accounts found. <a href="{% url 'create_account' %}">Create an account</a></div>
+        {% endif %}
     </div>
 
-    <!-- Account Details Card -->
+    <!-- Action Buttons -->
     <div class="container mt-4">
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">Total Balance: <span class="total-balance">{{ selected_account.balance }}</span></h3>
-                <p class="card-text">
-                    <strong>Account No : </strong> {{ selected_account.account_number }} <br>
-                    <strong>Account Type:</strong> {{ selected_account.account_type }}<br>
-                    <strong>Status:</strong> {{ selected_account.status }}
-                </p>
-                <a href="{% url 'account_details' selected_account.id %}" class="btn btn-info btn-action">View Account Details</a>
+        <div class="row">
+            <div class="col-md-3">
+                <a href="{% url 'deposit' %}" class="btn btn-success btn-action">Deposit</a>
+            </div>
+            <div class="col-md-3">
+                <a href="{% url 'withdraw' %}" class="btn btn-warning btn-action">Withdraw</a>
+            </div>
+            <div class="col-md-3">
+                <a href="{% url 'apply_for_loan' %}" class="btn btn-info btn-action">Apply for Loan</a>
+            </div>
+            <div class="col-md-3">
+                <a href="{% url 'loan_status' %}" class="btn btn-secondary btn-action">View Loans</a>
             </div>
         </div>
     </div>
-
-<!-- Action Buttons -->
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-3">
-            <a href="{% url 'deposit' %}" class="btn btn-success btn-action">Deposit</a>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'withdraw' %}" class="btn btn-warning btn-action">Withdraw</a>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'apply_for_loan' %}" class="btn btn-info btn-action">Apply for Loan</a>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'loan_status' %}" class="btn btn-secondary btn-action">View Loans</a>
-        </div>
-    </div>
-</div>
 
     <!-- Last 3 Transactions -->
     <div class="container mt-5">
@@ -146,8 +150,8 @@
             <div class="transaction-card">
                 <strong>{{ transaction.transaction_type|title }}</strong><br>
                 <small>{{ transaction.timestamp }}</small><br>
-                Amount: {{ transaction.amount }}<br>
-                Account : {{ transaction.account.account_number}}
+                <strong>Account:</strong> {{ transaction.account.account_number }}<br>
+                <strong>Amount:</strong> {{ transaction.amount }}<br>
                 Description: {{ transaction.description }}
             </div>
         {% endfor %}
