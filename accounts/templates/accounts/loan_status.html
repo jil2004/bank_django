@@ -34,6 +34,7 @@
                             {% if loan.status == 'approved' %}
                                 <a href="{% url 'repay_loan' loan.id %}" class="btn btn-primary">Repay</a>
                             {% endif %}
+                            <a href="{% url 'loan_details' loan.id %}" class="btn btn-info">Details</a>
                         </td>
                     </tr>
                 {% endfor %}

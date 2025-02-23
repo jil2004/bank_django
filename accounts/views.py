@@ -177,3 +177,25 @@ def repay_loan(request, loan_id):
         return redirect('loan_status')
 
     return render(request, 'accounts/repay_loan.html', {'loan': loan})
+
+@login_required
+def loan_details(request, loan_id):
+    loan = get_object_or_404(Loan, id=loan_id, user=request.user)
+
+    # Calculate monthly interest amount
+    monthly_interest = (loan.amount * loan.interest_rate / 100) / 12
+
+    # Get all repayment transactions for this loan
+    repayments = Transaction.objects.filter(
+        account=loan.account,
+        transaction_type='repayment',
+        description__icontains=f"Repayment for Loan #{loan.id}"
+    ).order_by('timestamp')
+
+    context = {
+        'loan': loan,
+        'monthly_interest': monthly_interest,
+        'repayments': repayments,
+    }
+
+    return render(request, 'accounts/loan_details.html', context)
