@@ -199,3 +199,21 @@ def loan_details(request, loan_id):
     }
 
     return render(request, 'accounts/loan_details.html', context)
+
+@login_required
+def account_details(request, account_id):
+    account = get_object_or_404(Account, id=account_id, user=request.user)
+
+    # Get all transactions for this account
+    transactions = Transaction.objects.filter(account=account).order_by('-timestamp')
+
+    # Get active loans for this account
+    active_loans = Loan.objects.filter(account=account, status='approved')
+
+    context = {
+        'account': account,
+        'transactions': transactions,
+        'active_loans': active_loans,
+    }
+
+    return render(request, 'accounts/account_details.html', context)

@@ -10,24 +10,22 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Account ID</th>
                     <th>Account Number</th>
                     <th>Account Type</th>
                     <th>Balance</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for account in accounts %}
                     <tr>
-                        <td>{{ account.id }}</td>  <!-- Display Account ID -->
                         <td>{{ account.account_number }}</td>
                         <td>{{ account.account_type }}</td>
                         <td>{{ account.balance }}</td>
+                        <td>{{ account.status }}</td>
                         <td>
-                            <a href="{% url 'deposit' account.id %}" class="btn btn-success">Deposit</a>
-                            <a href="{% url 'withdraw' account.id %}" class="btn btn-warning">Withdraw</a>
-                            <a href="{% url 'transfer' account.id %}" class="btn btn-info">Transfer</a>
+                            <a href="{% url 'account_details' account.id %}" class="btn btn-info">Details</a>
                         </td>
                     </tr>
                 {% endfor %}
