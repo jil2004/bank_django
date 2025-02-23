@@ -234,6 +234,19 @@ def loan_details(request, loan_id):
     return render(request, 'accounts/loan_details.html', context)
 
 @login_required
+def create_account(request):
+    if request.method == 'POST':
+        form = AccountForm(request.POST)
+        if form.is_valid():
+            account = form.save(commit=False)
+            account.user = request.user  # Link the account to the logged-in user
+            account.save()
+            return redirect('home')  # Redirect to home after creating the account
+    else:
+        form = AccountForm()
+    return render(request, 'accounts/create_account.html', {'form': form})
+
+@login_required
 def account_details(request, account_id):
     account = get_object_or_404(Account, id=account_id, user=request.user)
 

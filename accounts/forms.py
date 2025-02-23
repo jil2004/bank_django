@@ -13,7 +13,19 @@ class SignUpForm(UserCreationForm):
 class AccountForm(forms.ModelForm):
     class Meta:
         model = Account
-        fields = ['account_type']
+        fields = ['account_number', 'account_type']
+        widgets = {
+            'account_number': forms.TextInput(attrs={
+                'pattern': '\d{14}',
+                'title': 'Account number must be 14 digits',
+            }),
+        }
+
+    def clean_account_number(self):
+        account_number = self.cleaned_data.get('account_number')
+        if len(account_number) != 14 or not account_number.isdigit():
+            raise forms.ValidationError("Account number must be exactly 14 digits.")
+        return account_number
 
 # Deposit Form
 class DepositForm(forms.ModelForm):
