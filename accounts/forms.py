@@ -51,4 +51,9 @@ class TransferForm(forms.ModelForm):
 class LoanApplicationForm(forms.ModelForm):
     class Meta:
         model = Loan
-        fields = ['account', 'amount', 'interest_rate', 'duration_months']
+        fields = ['amount', 'interest_rate', 'duration_months']
+        widgets = {
+            'amount': forms.NumberInput(attrs={'class': 'form-control'}),
+            'interest_rate': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'duration_months': forms.NumberInput(attrs={'class': 'form-control'}),
+        }

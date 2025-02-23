@@ -121,20 +121,23 @@
         </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-4">
-                <a href="{% url 'deposit' %}" class="btn btn-success btn-action">Deposit</a>
-            </div>
-            <div class="col-md-4">
-                <a href="{% url 'withdraw' %}" class="btn btn-warning btn-action">Withdraw</a>
-            </div>
-            <div class="col-md-4">
-                <a href="{% url 'apply_for_loan' %}" class="btn btn-info btn-action">Apply for Loan</a>
-            </div>
+<!-- Action Buttons -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <a href="{% url 'deposit' %}" class="btn btn-success btn-action">Deposit</a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'withdraw' %}" class="btn btn-warning btn-action">Withdraw</a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'apply_for_loan' %}" class="btn btn-info btn-action">Apply for Loan</a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'loan_status' %}" class="btn btn-secondary btn-action">View Loans</a>
         </div>
     </div>
+</div>
 
     <!-- Last 3 Transactions -->
     <div class="container mt-5">
